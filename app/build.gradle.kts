@@ -38,7 +38,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
-    implementation("org.osmdroid:osmdroid-android:6.0.2")
+    implementation("org.osmdroid:osmdroid-android:6.1.0")
     implementation("com.google.android.gms:play-services-location:21.0.1")
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
