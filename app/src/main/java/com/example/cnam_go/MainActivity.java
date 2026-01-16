@@ -2,7 +2,9 @@ package com.example.cnam_go;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
@@ -12,6 +14,12 @@ import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,6 +32,7 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
@@ -41,24 +50,35 @@ import java.util.Iterator;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
-    private ArrayList<AuditeurMap> auditeursActifs = new ArrayList<AuditeurMap>();
-    private Handler mainHandler = new Handler(Looper.getMainLooper());
     private static final int MAX_AUDITEURS = 5;
+
     private static final long DUREE_VIE_MS = 60_000;
+
     private static final double DISTANCE_MAX_METRES = 50.0;
+
     private static final long INTERVALLE_GENERATION_MS = 15_000;
+
+    private final ArrayList<AuditeurMap> auditeursActifs = new ArrayList<>();
+
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+
     private GeoPoint currentPlayerPosition = null;
-
-
-
 
     private MapView map;
 
     private FusedLocationProviderClient locationClient;
 
+    private boolean firstLocationReceived = false;
 
+    private Marker playerMarker = null;
 
+    private View loadingContainer;
 
+    private ImageButton fabCenter;
+
+    private LinearLayout bottomBar;
+
+    private Button btnProfil, btnCollection, btnShop;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,13 +89,50 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
+        bottomBar = findViewById(R.id.bottomBar);
+        bottomBar.setVisibility(View.GONE);
+        fabCenter = findViewById(R.id.fab_center);
+        fabCenter.setVisibility(View.GONE);
+        btnProfil = findViewById(R.id.btnProfil);
+        btnCollection  = findViewById(R.id.btnCollection);
+        btnShop = findViewById(R.id.btnShop);
+        loadingContainer = findViewById(R.id.loadingContainer);
         map = findViewById(R.id.map);
-        map.setTileSource(TileSourceFactory.MAPNIK); // Pour le render.
+        map.setVisibility(View.GONE);
+        map.setTileSource(TileSourceFactory.MAPNIK);
+
+        fabCenter.setOnClickListener(v -> {
+            if (currentPlayerPosition != null && map.getVisibility() == View.VISIBLE) {
+                IMapController controller = map.getController();
+                controller.animateTo(currentPlayerPosition);
+                controller.setZoom(20.0);
+            } else {
+                Toast.makeText(this, "Position en cours de chargement...", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         locationClient = LocationServices.getFusedLocationProviderClient(this);
 
         startLocationUpdates();
         startAuditeurScheduler();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        map.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        map.onResume();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mainHandler.removeCallbacksAndMessages(null);
     }
 
     private void startAuditeurScheduler() {
@@ -101,35 +158,76 @@ public class MainActivity extends AppCompatActivity {
 
     private void spawnAuditeur(GeoPoint center) {
         Random random = new Random();
-        double radiusMeters = 50.0;
-        double radiusInDegrees = radiusMeters / 111320.0;
 
-        double u = random.nextDouble();
-        double v = random.nextDouble();
-        double w = radiusInDegrees * Math.sqrt(u);
-        double t = 2 * Math.PI * v;
+        // Distance min et max de spawn
+        double minDistance = 30;   // mètres
+        double maxDistance = 120;  // mètres
 
-        double xOffset = w * Math.cos(t);
-        double yOffset = w * Math.sin(t);
+        // Distance aléatoire dans la plage
+        double distance = minDistance + (maxDistance - minDistance) * random.nextDouble();
 
-        double lat = center.getLatitude() + yOffset;
-        double lon = center.getLongitude() + xOffset;
+        // Direction aléatoire : 0=N, 1=E, 2=S, 3=O
+        int direction = random.nextInt(4);
+
+        double latOffset = 0;
+        double lonOffset = 0;
+
+        // Conversion mètres → degrés
+        double metersToDegLat = distance / 111320.0;
+        double metersToDegLon = distance / (111320.0 * Math.cos(Math.toRadians(center.getLatitude())));
+
+        switch (direction) {
+            case 0: // Nord
+                latOffset = metersToDegLat;
+                break;
+            case 1: // Est
+                lonOffset = metersToDegLon;
+                break;
+            case 2: // Sud
+                latOffset = -metersToDegLat;
+                break;
+            case 3: // Ouest
+                lonOffset = -metersToDegLon;
+                break;
+        }
+
+        double lat = center.getLatitude() + latOffset;
+        double lon = center.getLongitude() + lonOffset;
 
         GeoPoint pos = new GeoPoint(lat, lon);
 
         Marker marker = new Marker(map);
         marker.setPosition(pos);
-        marker.setTitle("Auditeur");
-        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
 
-        ShapeDrawable circle = new ShapeDrawable(new OvalShape());
-        circle.setIntrinsicHeight(40);
-        circle.setIntrinsicWidth(40);
-        circle.getPaint().setColor(Color.RED);
-        marker.setIcon(circle);
+        // A RETIRER PLUS TARD CAR ON AURA LA BD.
+        String[] auditeurNames = {
+                "noah_shadow",
+                "enzo_shadow",
+                "nadhir_shadow"
+        };
+
+        String chosenName = auditeurNames[random.nextInt(auditeurNames.length)];
+
+        int resId = getResources().getIdentifier(
+                chosenName,
+                "drawable",
+                getPackageName()
+        );
+
+        Drawable drawable = getResources().getDrawable(resId, null);
+
+        Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+
+        Bitmap scaled = Bitmap.createScaledBitmap(bitmap, 160, 160, true);
+
+        Drawable auditeurIcon = new BitmapDrawable(getResources(), scaled);
+
+        marker.setIcon(auditeurIcon);
+        marker.setAnchor(0.5f, 0.5f);
 
         map.getOverlays().add(marker);
         map.invalidate();
+
 
         AuditeurMap auditeur = new AuditeurMap(pos, marker);
         auditeursActifs.add(auditeur);
@@ -160,11 +258,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void removeAuditeur(AuditeurMap a) {
-        removeAuditeurFromMap(a);
-        auditeursActifs.remove(a);
-    }
-
     private void removeAuditeurFromMap(AuditeurMap a) {
         map.getOverlays().remove(a.marker);
         map.invalidate();
@@ -182,98 +275,60 @@ public class MainActivity extends AppCompatActivity {
         return results[0];
     }
 
-
-
-
-
-
-
-
-
-
-
     private void startLocationUpdates() {
         // Vérifier les permissions
         if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
             return;
         }
 
         // Créer la requête de localisation
         LocationRequest request = LocationRequest.create();
         request.setPriority(Priority.PRIORITY_HIGH_ACCURACY);
-        request.setInterval(3000); // mise à jour toutes les 5 secondes
+        request.setInterval(3000);
 
         // Demander les mises à jour GPS
         locationClient.requestLocationUpdates(request, new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult result) {
                 Location loc = result.getLastLocation();
-                if (loc != null) {
 
-                    GeoPoint userPos = new GeoPoint(loc.getLatitude(), loc.getLongitude());
-                    currentPlayerPosition = userPos;
+                if (loc == null || firstLocationReceived) return;
 
-                    // Caméra suit joueur
+                // On traite uniquement la première localisation valide
+                firstLocationReceived = true;
+
+                GeoPoint userPos = new GeoPoint(loc.getLatitude(), loc.getLongitude());
+                currentPlayerPosition = userPos;
+
+                // Configurer la carte maintenant qu’on a la position
+                runOnUiThread(() -> {
+                    // Afficher la carte
+                    map.setVisibility(View.VISIBLE);
+                    // Masquer le chargement
+                    loadingContainer.setVisibility(View.GONE);
+
+                    // Afficher la barre du bas et le bouton recentrer
+                    bottomBar.setVisibility(View.VISIBLE);
+                    fabCenter.setVisibility(View.VISIBLE);
+
+                    // Configurer caméra et marker
                     IMapController mapController = map.getController();
                     mapController.setZoom(20.0);
                     mapController.setCenter(userPos);
 
-                    // ===== Nettoyage : garder uniquement le marqueur "Moi" =====
-                    Marker oldPlayerMarker = null;
-                    for (Overlay o : map.getOverlays()) {
-                        if (o instanceof Marker) {
-                            Marker m = (Marker) o;
-                            if ("Moi".equals(m.getTitle())) {
-                                oldPlayerMarker = m;
-                                break;
-                            }
-                        }
-                    }
-                    if (oldPlayerMarker != null) {
-                        map.getOverlays().remove(oldPlayerMarker);
-                    }
-
-
-                    // ===== Ajouter/rafraîchir le marqueur du joueur =====
-                    Marker playerMarker = new Marker(map);
+                    // Ajouter le marker joueur
+                    playerMarker = new Marker(map);
                     playerMarker.setPosition(userPos);
                     playerMarker.setTitle("Moi");
                     map.getOverlays().add(playerMarker);
 
-                    // ===== Nettoyer les auditeurs obsolètes (trop vieux ou trop loin) =====
-                    cleanupAuditeurs();
-
-                    // ❌ Supprime ces lignes si tu n'utilises plus les OverlayItem :
-                    // map.getOverlays().remove(characterOverlay);
-                    // map.getOverlays().add(characterOverlay);
-
                     map.invalidate();
-                }
+                });
+
+                cleanupAuditeurs();
             }
         }, Looper.getMainLooper());
-    }
-
-
-
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        map.onPause();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        map.onResume();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mainHandler.removeCallbacksAndMessages(null);
     }
 }
