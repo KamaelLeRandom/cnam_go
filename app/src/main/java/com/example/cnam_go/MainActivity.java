@@ -159,38 +159,19 @@ public class MainActivity extends AppCompatActivity {
     private void spawnAuditeur(GeoPoint center) {
         Random random = new Random();
 
-        // Distance min et max de spawn
-        double minDistance = 30;   // mètres
-        double maxDistance = 120;  // mètres
+        // Rayon réel max en mètres
+        double maxDistance = 80; // ← ajuste ici
 
-        // Distance aléatoire dans la plage
-        double distance = minDistance + (maxDistance - minDistance) * random.nextDouble();
-
-        // Direction aléatoire : 0=N, 1=E, 2=S, 3=O
-        int direction = random.nextInt(4);
-
-        double latOffset = 0;
-        double lonOffset = 0;
+        // Génère un angle et une distance
+        double angle = random.nextDouble() * 2 * Math.PI;
+        double distance = random.nextDouble() * maxDistance;
 
         // Conversion mètres → degrés
-        double metersToDegLat = distance / 111320.0;
-        double metersToDegLon = distance / (111320.0 * Math.cos(Math.toRadians(center.getLatitude())));
+        double latOffset = (distance * Math.cos(angle)) / 111320.0;
+        double lonOffset = (distance * Math.sin(angle)) /
+                (111320.0 * Math.cos(Math.toRadians(center.getLatitude())));
 
-        switch (direction) {
-            case 0: // Nord
-                latOffset = metersToDegLat;
-                break;
-            case 1: // Est
-                lonOffset = metersToDegLon;
-                break;
-            case 2: // Sud
-                latOffset = -metersToDegLat;
-                break;
-            case 3: // Ouest
-                lonOffset = -metersToDegLon;
-                break;
-        }
-
+        // Nouvelle position
         double lat = center.getLatitude() + latOffset;
         double lon = center.getLongitude() + lonOffset;
 
@@ -203,7 +184,8 @@ public class MainActivity extends AppCompatActivity {
         String[] auditeurNames = {
                 "noah_shadow",
                 "enzo_shadow",
-                "nadhir_shadow"
+                "nadhir_shadow",
+                "alexis_1_shadow"
         };
 
         String chosenName = auditeurNames[random.nextInt(auditeurNames.length)];
@@ -214,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
                 getPackageName()
         );
 
-        Drawable drawable = getResources().getDrawable(resId, null);
+        Drawable drawable = getResources().getDrawable(R.drawable.alexis_1, null);
 
         Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
 
