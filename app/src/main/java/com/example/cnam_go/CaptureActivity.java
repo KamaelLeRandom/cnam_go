@@ -3,8 +3,13 @@ package com.example.cnam_go;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -19,9 +24,13 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.example.cnam_go.models.AuditeurEntity;
 import com.google.common.util.concurrent.ListenableFuture;
 
 public class CaptureActivity extends AppCompatActivity {
+
+    private AuditeurEntity auditeur = null;
+
     private static final int CAMERA_PERMISSION_REQUEST = 1001;
     private PreviewView cameraPreview;
     private boolean cameraEnabled = false;
@@ -35,6 +44,7 @@ public class CaptureActivity extends AppCompatActivity {
     private static final float ALLOWED_TOUCH_ZONE_FROM_BOTTOM = 0.4f;
     private float minTouchY = 0f;
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,6 +52,24 @@ public class CaptureActivity extends AppCompatActivity {
 
         creatureImageView = findViewById(R.id.creatureImageView);
         ballImageView = findViewById(R.id.ballImageView);
+
+        auditeur = (AuditeurEntity) getIntent().getSerializableExtra("auditeur_entity");
+        if (auditeur != null) {
+            Log.d("CAPTURE", "Auditeur reçu : " + auditeur.Name);
+
+            String imgName = auditeur.Name.toLowerCase();
+
+            int resId = getResources().getIdentifier(imgName, "drawable", getPackageName());
+            if (resId != 0) {
+                Drawable drawable = getResources().getDrawable(resId, null);
+                Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+                Bitmap scaled = Bitmap.createScaledBitmap(bitmap, 160, 160, true);
+                Drawable auditeurIcon = new BitmapDrawable(getResources(), scaled);
+                creatureImageView.setImageDrawable(auditeurIcon);
+            } else {
+                Log.w("CAPTURE", "Drawable non trouvé pour : " + imgName);
+            }
+        }
 
         ConstraintLayout root = findViewById(R.id.captureRoot);
         root.post(() -> {

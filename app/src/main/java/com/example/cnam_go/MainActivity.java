@@ -4,11 +4,8 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.OvalShape;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -19,10 +16,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -33,21 +28,17 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.ItemizedIconOverlay;
-import org.osmdroid.views.overlay.ItemizedOverlayWithFocus;
 import org.osmdroid.views.overlay.Marker;
-import org.osmdroid.views.overlay.Overlay;
-import org.osmdroid.views.overlay.OverlayItem;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
@@ -173,8 +164,7 @@ public class MainActivity extends AppCompatActivity {
         double distance = random.nextDouble() * maxDistance;
 
         double latOffset = (distance * Math.cos(angle)) / 111320.0;
-        double lonOffset = (distance * Math.sin(angle)) /
-                (111320.0 * Math.cos(Math.toRadians(center.getLatitude())));
+        double lonOffset = (distance * Math.sin(angle)) /  (111320.0 * Math.cos(Math.toRadians(center.getLatitude())));
 
         double lat = center.getLatitude() + latOffset;
         double lon = center.getLongitude() + lonOffset;
@@ -184,30 +174,39 @@ public class MainActivity extends AppCompatActivity {
         Marker marker = new Marker(map);
         marker.setPosition(pos);
 
-        Drawable drawable = getResources().getDrawable(R.drawable.alexis_1_shadow, null);
-        Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
-        Bitmap scaled = Bitmap.createScaledBitmap(bitmap, 160, 160, true);
-        Drawable auditeurIcon = new BitmapDrawable(getResources(), scaled);
+        AuditeurMap auditeur = new AuditeurMap(getApplicationContext(), pos, marker);
+        Log.d("AUDITEUR", "Nouvel auditeur à " + pos.getLatitude() + ", " + pos.getLongitude());
+        Log.d("AUDITEUR", "Auditeur généré : " + auditeur.entity.Name
+                + " | HP=" + auditeur.entity.BaseHp
+                + " ATK=" + auditeur.entity.BaseAtk
+                + " DEF=" + auditeur.entity.BaseDef
+                + " SPD=" + auditeur.entity.BaseSpd);
 
-        marker.setIcon(auditeurIcon);
+        String imgName = auditeur.entity.Name.toLowerCase() + "_shadow";
+        int resId = getResources().getIdentifier(imgName, "drawable", getPackageName());
+
+        if (resId != 0) {
+            Drawable drawable = getResources().getDrawable(resId, null);
+            Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+            Bitmap scaled = Bitmap.createScaledBitmap(bitmap, 160, 160, true);
+            Drawable auditeurIcon = new BitmapDrawable(getResources(), scaled);
+            marker.setIcon(auditeurIcon);
+        } else {
+            Log.w("AUDITEUR", "Image non trouvée pour: " + imgName);
+        }
+
         marker.setAnchor(0.5f, 0.5f);
-
-        // 👇 AJOUT DU LISTENER ICI
         marker.setOnMarkerClickListener((m, mapView) -> {
             Intent intent = new Intent(MainActivity.this, CaptureActivity.class);
-            // Exemple si tu veux envoyer le type :
-            // intent.putExtra("auditeur_type", "alexis_1");
+            intent.putExtra("auditeur_entity", auditeur.entity);
+
             startActivity(intent);
-            return true; // consomme le clic
+            return true;
         });
 
         map.getOverlays().add(marker);
         map.invalidate();
-
-        AuditeurMap auditeur = new AuditeurMap(pos, marker);
         auditeursActifs.add(auditeur);
-
-        Log.d("AUDITEUR", "Nouvel auditeur à " + pos.getLatitude() + ", " + pos.getLongitude());
     }
 
     private void cleanupAuditeurs() {

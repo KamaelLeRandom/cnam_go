@@ -2,33 +2,33 @@
   {
     "code": "AUD-01",
     "name": "Alexisky",
-    "baseHp": 10,
-    "baseAtk": 15,
-    "baseDef": 10,
-    "baseSpd": 15
+    "baseHp": 100,
+    "baseAtk": 150,
+    "baseDef": 100,
+    "baseSpd": 150
   },
   {
     "code": "AUD-02",
     "name": "Hugo",
-    "baseHp": 12,
-    "baseAtk": 12,
-    "baseDef": 12,
-    "baseSpd": 12
+    "baseHp": 120,
+    "baseAtk": 120,
+    "baseDef": 120,
+    "baseSpd": 120
   },
   {
     "code": "AUD-03",
     "name": "Parpineur",
-    "baseHp": 10,
-    "baseAtk": 10,
-    "baseDef": 20,
-    "baseSpd": 10
+    "baseHp": 100,
+    "baseAtk": 100,
+    "baseDef": 200,
+    "baseSpd": 100
   },
   {
     "code": "AUD-04",
     "name": "Flingueur",
-    "baseHp": 10,
-    "baseAtk": 20,
-    "baseDef": 10,
-    "baseSpd": 10
+    "baseHp": 100,
+    "baseAtk": 200,
+    "baseDef": 100,
+    "baseSpd": 100
   }
 ]
