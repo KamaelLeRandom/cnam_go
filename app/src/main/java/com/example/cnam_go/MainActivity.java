@@ -102,6 +102,14 @@ public class MainActivity extends AppCompatActivity {
         map.setVisibility(View.GONE);
         map.setTileSource(TileSourceFactory.MAPNIK);
 
+        btnShop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, ShopActivity.class);
+                startActivity(intent);
+            }
+        });
+
         fabCenter.setOnClickListener(v -> {
             if (currentPlayerPosition != null && map.getVisibility() == View.VISIBLE) {
                 IMapController controller = map.getController();
