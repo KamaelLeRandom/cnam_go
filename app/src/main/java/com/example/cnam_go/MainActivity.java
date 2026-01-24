@@ -1,6 +1,7 @@
 package com.example.cnam_go;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -159,19 +160,14 @@ public class MainActivity extends AppCompatActivity {
     private void spawnAuditeur(GeoPoint center) {
         Random random = new Random();
 
-        // Rayon réel max en mètres
-        double maxDistance = 80; // ← ajuste ici
-
-        // Génère un angle et une distance
+        double maxDistance = 80;
         double angle = random.nextDouble() * 2 * Math.PI;
         double distance = random.nextDouble() * maxDistance;
 
-        // Conversion mètres → degrés
         double latOffset = (distance * Math.cos(angle)) / 111320.0;
         double lonOffset = (distance * Math.sin(angle)) /
                 (111320.0 * Math.cos(Math.toRadians(center.getLatitude())));
 
-        // Nouvelle position
         double lat = center.getLatitude() + latOffset;
         double lon = center.getLongitude() + lonOffset;
 
@@ -180,36 +176,25 @@ public class MainActivity extends AppCompatActivity {
         Marker marker = new Marker(map);
         marker.setPosition(pos);
 
-        // A RETIRER PLUS TARD CAR ON AURA LA BD.
-        String[] auditeurNames = {
-                "noah_shadow",
-                "enzo_shadow",
-                "nadhir_shadow",
-                "alexis_1_shadow"
-        };
-
-        String chosenName = auditeurNames[random.nextInt(auditeurNames.length)];
-
-        int resId = getResources().getIdentifier(
-                chosenName,
-                "drawable",
-                getPackageName()
-        );
-
-        Drawable drawable = getResources().getDrawable(R.drawable.alexis_1, null);
-
+        Drawable drawable = getResources().getDrawable(R.drawable.alexis_1_shadow, null);
         Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
-
         Bitmap scaled = Bitmap.createScaledBitmap(bitmap, 160, 160, true);
-
         Drawable auditeurIcon = new BitmapDrawable(getResources(), scaled);
 
         marker.setIcon(auditeurIcon);
         marker.setAnchor(0.5f, 0.5f);
 
+        // 👇 AJOUT DU LISTENER ICI
+        marker.setOnMarkerClickListener((m, mapView) -> {
+            Intent intent = new Intent(MainActivity.this, CaptureActivity.class);
+            // Exemple si tu veux envoyer le type :
+            // intent.putExtra("auditeur_type", "alexis_1");
+            startActivity(intent);
+            return true; // consomme le clic
+        });
+
         map.getOverlays().add(marker);
         map.invalidate();
-
 
         AuditeurMap auditeur = new AuditeurMap(pos, marker);
         auditeursActifs.add(auditeur);
