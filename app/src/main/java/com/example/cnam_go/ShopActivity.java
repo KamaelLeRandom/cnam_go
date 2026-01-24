@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.NumberPicker;
 import android.widget.TextView;
@@ -31,6 +32,7 @@ public class ShopActivity extends AppCompatActivity {
         View perrierBall = findViewById(R.id.perrierBall);
         View encens = findViewById(R.id.encens);
         View chadJuice = findViewById(R.id.chadJuice);
+        Button btnBack = findViewById(R.id.btnBack);
 
         setupCard(
                 monstahball,
@@ -66,6 +68,13 @@ public class ShopActivity extends AppCompatActivity {
                 R.drawable.outline_air_freshener_24,
                 v -> showBuyDialog("ChadJuice", 120)
         );
+
+        btnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
     }
 
     private void setupCard(View card, String title, int iconRes, View.OnClickListener listener) {
