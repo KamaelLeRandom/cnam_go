@@ -1,0 +1,34 @@
+[
+  {
+    "code": "AUD-01",
+    "name": "Alexisky",
+    "baseHp": 10,
+    "baseAtk": 15,
+    "baseDef": 10,
+    "baseSpd": 15
+  },
+  {
+    "code": "AUD-02",
+    "name": "Hugo",
+    "baseHp": 12,
+    "baseAtk": 12,
+    "baseDef": 12,
+    "baseSpd": 12
+  },
+  {
+    "code": "AUD-03",
+    "name": "Parpineur",
+    "baseHp": 10,
+    "baseAtk": 10,
+    "baseDef": 20,
+    "baseSpd": 10
+  },
+  {
+    "code": "AUD-04",
+    "name": "Flingueur",
+    "baseHp": 10,
+    "baseAtk": 20,
+    "baseDef": 10,
+    "baseSpd": 10
+  }
+]
