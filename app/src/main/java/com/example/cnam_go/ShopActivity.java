@@ -2,6 +2,7 @@ package com.example.cnam_go;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -13,16 +14,30 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.firestore.FirebaseFirestore;
+
 public class ShopActivity extends AppCompatActivity {
 
-    private int money = 500;
+    private int money;
     private TextView tvMoney;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_shop);
+
+        SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
+
+        boolean isLogged = prefs.getBoolean("isLogged", false);
+
+        if (isLogged) {
+            String login = prefs.getString("login", "");
+            money = prefs.getInt("money", 0);
+
+            System.out.println("Utilisateur connecté : " + login);
+        }
 
         tvMoney = findViewById(R.id.tvMoney);
         updateMoney();

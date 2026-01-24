@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "76120573673",
+    "project_id": "cnam-go",
+    "storage_bucket": "cnam-go.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:76120573673:android:b91fb5764c8cccabe75278",
+        "android_client_info": {
+          "package_name": "com.example.cnam_go"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBeNwxO9vNA-s8NucN4ZzB6Neeuj3bqI04"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
