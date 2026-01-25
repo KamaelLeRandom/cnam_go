@@ -9,6 +9,8 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.AudioAttributes;
+import android.media.SoundPool;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -44,6 +46,8 @@ import java.util.Locale;
 import java.util.Map;
 
 public class CaptureActivity extends AppCompatActivity {
+    private SoundPool soundPool;
+    private int soundSpawn, soundCapture, soundFlee, soundFail, soundSucess, soundCanetteSwap;
     private AuditeurEntity auditeur = null;
     private static final int CAMERA_PERMISSION_REQUEST = 1001;
     private PreviewView cameraPreview;
@@ -67,6 +71,8 @@ public class CaptureActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_capture);
+
+        setupSound();
 
         creatureNameView = findViewById(R.id.creatureNameText);
         creatureImageView = findViewById(R.id.creatureImageView);
@@ -153,6 +159,8 @@ public class CaptureActivity extends AppCompatActivity {
             finish();
         });
 
+        soundPool.play(soundSpawn, 1, 1, 0, 0, 1);
+
         loadUserCanette();
     }
 
@@ -172,13 +180,34 @@ public class CaptureActivity extends AppCompatActivity {
         }
     }
 
+    public void setupSound() {
+        AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build();
+
+        soundPool = new SoundPool.Builder()
+                .setMaxStreams(5)
+                .setAudioAttributes(audioAttributes)
+                .build();
+
+        soundSpawn = soundPool.load(this, R.raw.capture_spawn, 1);
+        soundCapture = soundPool.load(this, R.raw.capture_catch, 1);
+        soundFail = soundPool.load(this, R.raw.capture_fail, 1);
+        soundFlee = soundPool.load(this, R.raw.capture_flee, 1);
+        soundSucess = soundPool.load(this, R.raw.capture_sucess, 1);
+        soundCanetteSwap = soundPool.load(this, R.raw.canette_swap, 1);
+    }
+
     private void selectCanette(String code, int imageResId) {
         SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
         long stock = prefs.getLong(code, 0);
 
         if (stock > 0) {
+            soundPool.play(soundCanetteSwap, 1, 1, 0, 0, 1);
+
             selectedItemCode = code;
-            ballImageView.setImageResource(imageResId); // Change la balle au centre de l'écran
+            ballImageView.setImageResource(imageResId);
 
             Toast.makeText(this, "Sélectionné : " + code, Toast.LENGTH_SHORT).show();
         } else {
@@ -377,6 +406,8 @@ public class CaptureActivity extends AppCompatActivity {
             boolean success = computeCaptureSuccess();
 
             if (success) {
+                soundPool.play(soundSucess, 1, 1, 0, 0, 1);
+
                 Toast.makeText(this, "🎉 Capturé !", Toast.LENGTH_SHORT).show();
 
                 playCaptureAnimation();
@@ -388,6 +419,8 @@ public class CaptureActivity extends AppCompatActivity {
                 captureAttempts++;
 
                 if (computeFlee()) {
+                    soundPool.play(soundFlee, 1, 1, 0, 0, 1);
+
                     auditeurFled = true;
 
                     ballImageView.setVisibility(View.VISIBLE);
@@ -401,6 +434,8 @@ public class CaptureActivity extends AppCompatActivity {
                     }, 1200);
 
                     return;
+                } else {
+                    soundPool.play(soundFail, 1, 1, 0, 0, 1);
                 }
 
                 creatureImageView.setVisibility(View.VISIBLE);
@@ -491,7 +526,6 @@ public class CaptureActivity extends AppCompatActivity {
         }
     }
 
-
     private void toggleCamera() {
         cameraEnabled = !cameraEnabled;
 
@@ -529,13 +563,6 @@ public class CaptureActivity extends AppCompatActivity {
         }, ContextCompat.getMainExecutor(this));
     }
 
-
-
-
-
-
-
-
     private boolean checkCollisionAt(float ballX, float ballY) {
         float ballCenterX = ballX + ballImageView.getWidth() / 2f;
         float ballCenterY = ballY + ballImageView.getHeight() / 2f;
@@ -562,6 +589,8 @@ public class CaptureActivity extends AppCompatActivity {
     }
 
     private void playCaptureAnimation() {
+        soundPool.play(soundCapture, 1, 1, 0, 0, 1);
+
         int starSize = 80;
         ConstraintLayout root = findViewById(R.id.captureRoot);
 

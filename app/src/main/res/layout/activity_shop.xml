@@ -67,23 +67,22 @@
             <include
                 android:id="@+id/perrierBall"
                 layout="@layout/item_shop_card" />
-
         </LinearLayout>
 
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center">
-            <include
-                android:id="@+id/encens"
-                layout="@layout/item_shop_card" />
+<!--        <LinearLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:orientation="horizontal"-->
+<!--            android:gravity="center">-->
+<!--            <include-->
+<!--                android:id="@+id/encens"-->
+<!--                layout="@layout/item_shop_card" />-->
 
-            <include
-                android:id="@+id/chadJuice"
-                layout="@layout/item_shop_card" />
-        </LinearLayout>
+<!--            <include-->
+<!--                android:id="@+id/chadJuice"-->
+<!--                layout="@layout/item_shop_card" />-->
+<!--        </LinearLayout>-->
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
