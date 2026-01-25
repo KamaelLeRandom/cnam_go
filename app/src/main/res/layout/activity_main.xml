@@ -1,5 +1,6 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -30,6 +31,20 @@
         android:layout_height="match_parent"
         android:visibility="gone" />
 
+    <ImageButton
+        android:id="@+id/btnDailyReward"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@android:color/transparent"
+        android:scaleType="fitCenter"
+        android:src="@android:drawable/btn_star_big_on"
+        android:visibility="gone"
+        android:contentDescription="Récompense quotidienne" />
+
     <LinearLayout
         android:id="@+id/bottomBar"
         android:layout_width="match_parent"
@@ -38,15 +53,7 @@
         android:background="#FFFFFF"
         android:elevation="8dp"
         android:orientation="horizontal"
-        android:weightSum="3">
-
-        <Button
-            android:id="@+id/btnProfil"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="Profil"
-            android:textSize="12sp" />
+        android:weightSum="2">
 
         <Button
             android:id="@+id/btnCollection"
@@ -54,7 +61,13 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="Collection"
-            android:textSize="12sp" />
+            android:textSize="12sp"
+            android:textColor="@android:color/white"
+            android:backgroundTint="@android:color/holo_red_dark"
+            android:padding="8dp"
+            android:layout_margin="4dp"
+            app:cornerRadius="8dp"/>
+
 
         <Button
             android:id="@+id/btnShop"
@@ -62,7 +75,12 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="Magasin"
-            android:textSize="12sp" />
+            android:textSize="12sp"
+            android:textColor="@android:color/white"
+            android:backgroundTint="@android:color/holo_red_dark"
+            android:padding="8dp"
+            android:layout_margin="4dp"
+            app:cornerRadius="8dp"/>
 
     </LinearLayout>
 

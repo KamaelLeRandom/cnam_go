@@ -17,13 +17,24 @@ public class AuditeurEntity implements Serializable {
 
     public boolean IsChad;
 
-    public AuditeurEntity(String code, String name, int baseHp, int baseAtk, int baseDef, int baseSpd) {
+    public String CodeBall;
+
+    public AuditeurEntity(
+            String code,
+            String name,
+            int baseHp,
+            int baseAtk,
+            int baseDef,
+            int baseSpd,
+            String codeBall
+    ) {
         this.Code = code;
         this.Name = name;
         this.BaseHp = baseHp;
         this.BaseAtk = baseAtk;
         this.BaseDef = baseDef;
         this.BaseSpd = baseSpd;
+        this.CodeBall = codeBall;
         this.IsChad = false;
     }
 }

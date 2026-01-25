@@ -33,6 +33,9 @@
         <activity
             android:name=".ShopActivity"
             android:exported="false" />
+        <activity
+            android:name=".CollectionActivity"
+            android:exported="false" />
     </application>
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
