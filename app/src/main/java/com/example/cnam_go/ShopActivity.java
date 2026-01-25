@@ -17,9 +17,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class ShopActivity extends AppCompatActivity {
+    private long money;
 
-    private int money;
     private TextView tvMoney;
+
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     @Override
@@ -34,7 +35,7 @@ public class ShopActivity extends AppCompatActivity {
 
         if (isLogged) {
             String login = prefs.getString("login", "");
-            money = prefs.getInt("money", 0);
+            money = prefs.getLong("money", 0);
 
             System.out.println("Utilisateur connecté : " + login);
         }
@@ -52,21 +53,21 @@ public class ShopActivity extends AppCompatActivity {
         setupCard(
                 monstahball,
                 "Monstahball",
-                R.drawable.baseline_can_full_24,
+                R.drawable.monstahball,
                 v -> showBuyDialog("Monstahball", 50)
         );
 
         setupCard(
                 redball,
                 "RedBall",
-                R.drawable.baseline_can_full_24,
+                R.drawable.redball,
                 v -> showBuyDialog("RedBall", 75)
         );
 
         setupCard(
                 perrierBall,
                 "PerrierBall",
-                R.drawable.baseline_can_full_24,
+                R.drawable.perrierball,
                 v -> showBuyDialog("PerrierBall", 60)
         );
 

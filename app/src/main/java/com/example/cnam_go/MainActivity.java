@@ -2,6 +2,7 @@ package com.example.cnam_go;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -28,6 +29,8 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
@@ -36,9 +39,12 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
@@ -70,11 +76,20 @@ public class MainActivity extends AppCompatActivity {
 
     private LinearLayout bottomBar;
 
-    private Button btnProfil, btnCollection, btnShop;
+    private Button btnCollection, btnShop;
+
+    private ImageButton btnDaily;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        boolean isLogged = prefs.getBoolean("isLogged", false);
+
+        if (!isLogged) return;
 
         Configuration.getInstance().load(getApplicationContext(), PreferenceManager.getDefaultSharedPreferences(getApplicationContext()));
         Configuration.getInstance().setUserAgentValue(getPackageName());
@@ -85,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
         bottomBar.setVisibility(View.GONE);
         fabCenter = findViewById(R.id.fab_center);
         fabCenter.setVisibility(View.GONE);
-        btnProfil = findViewById(R.id.btnProfil);
+        btnDaily = findViewById(R.id.btnDailyReward);
         btnCollection  = findViewById(R.id.btnCollection);
         btnShop = findViewById(R.id.btnShop);
         loadingContainer = findViewById(R.id.loadingContainer);
@@ -99,6 +114,49 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, ShopActivity.class);
                 startActivity(intent);
             }
+        });
+
+        btnCollection.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, CollectionActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        btnDaily.setOnClickListener(v -> {
+            int min = 1000;
+            int max = 2000;
+            int money = new java.util.Random().nextInt((max - min) + 1) + min;
+
+            String message = "Félicitations ! Tu as récupéré " + money + " pièces !";
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+
+            String userId = prefs.getString("userId", "");
+            Long moneyActual = prefs.getLong("money", 0);
+            Long moneyTotal = moneyActual + money;
+
+            btnDaily.setVisibility(View.GONE);
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            String currentDate = sdf.format(new java.util.Date());
+
+            Map<String, Object> updates = new HashMap<>();
+            updates.put("Money", moneyTotal);
+            updates.put("DailyDate", currentDate);
+
+            db.collection("User").document(userId)
+                    .set(updates, SetOptions.merge())
+                    .addOnSuccessListener(aVoid -> {
+                        Log.d("Firebase", "Base de données mise à jour !");
+
+                        prefs.edit().putString("dailyDate", currentDate).apply();
+                        prefs.edit().putLong("money", moneyTotal).apply();
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e("Firebase", "Erreur : " + e.getMessage());
+                        Toast.makeText(this, "Erreur de synchronisation", Toast.LENGTH_SHORT).show();
+                    });
         });
 
         fabCenter.setOnClickListener(v -> {
@@ -200,7 +258,13 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, CaptureActivity.class);
             intent.putExtra("auditeur_entity", auditeur.entity);
 
+            map.getOverlays().remove(marker);
+            map.invalidate();
+
+            auditeursActifs.remove(auditeur);
+
             startActivity(intent);
+
             return true;
         });
 
@@ -249,6 +313,22 @@ public class MainActivity extends AppCompatActivity {
         return results[0];
     }
 
+    private void checkVisibilityDailyBtn() {
+        SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        String currentDate = sdf.format(new java.util.Date());
+        String dailyDate = prefs.getString("dailyDate", "");
+
+        if (currentDate.trim().equals(dailyDate.trim())) {
+            btnDaily.setVisibility(View.GONE);
+            Log.d("RECOMPENSE", "Action : Bouton CACHÉ");
+        } else {
+            btnDaily.setVisibility(View.VISIBLE);
+            Log.d("RECOMPENSE", "Action : Bouton AFFICHÉ");
+        }
+    }
+
     private void startLocationUpdates() {
         // Vérifier les permissions
         if (ActivityCompat.checkSelfPermission(this,
@@ -280,6 +360,9 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     // Afficher la carte
                     map.setVisibility(View.VISIBLE);
+
+                    checkVisibilityDailyBtn();
+
                     // Masquer le chargement
                     loadingContainer.setVisibility(View.GONE);
 

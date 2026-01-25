@@ -1,34 +1,111 @@
 [
+
   {
     "code": "AUD-01",
-    "name": "Alexisky",
-    "baseHp": 100,
-    "baseAtk": 150,
-    "baseDef": 100,
-    "baseSpd": 150
+    "name": "Hugo",
+    "baseHp": 125,
+    "baseAtk": 125,
+    "baseDef": 125,
+    "baseSpd": 125,
+    "codeBall": "SIT-02"
   },
   {
     "code": "AUD-02",
-    "name": "Hugo",
-    "baseHp": 120,
-    "baseAtk": 120,
-    "baseDef": 120,
-    "baseSpd": 120
-  },
-  {
-    "code": "AUD-03",
-    "name": "Parpineur",
-    "baseHp": 100,
-    "baseAtk": 100,
-    "baseDef": 200,
-    "baseSpd": 100
-  },
-  {
-    "code": "AUD-04",
     "name": "Flingueur",
     "baseHp": 100,
     "baseAtk": 200,
     "baseDef": 100,
-    "baseSpd": 100
+    "baseSpd": 100,
+    "codeBall": "SIT-02"
+  },
+  {
+    "code": "AUD-03",
+    "name": "Parpineur",
+    "baseHp": 50,
+    "baseAtk": 100,
+    "baseDef": 250,
+    "baseSpd": 100,
+    "codeBall": "SIT-01"
+  },
+  {
+    "code": "AUD-04",
+    "name": "Alexisky",
+    "baseHp": 100,
+    "baseAtk": 150,
+    "baseDef": 100,
+    "baseSpd": 150,
+    "codeBall": "SIT-01"
+  },
+  {
+    "code": "AUD-05",
+    "name": "Stefan",
+    "baseHp": 180,
+    "baseAtk": 140,
+    "baseDef": 100,
+    "baseSpd": 80,
+    "codeBall": "SIT-01"
+  },
+  {
+    "code": "AUD-06",
+    "name": "CESAOOR",
+    "baseHp": 80,
+    "baseAtk": 170,
+    "baseDef": 170,
+    "baseSpd": 80,
+    "codeBall": "SIT-02"
+  },
+  {
+    "code": "AUD-07",
+    "name": "Leovann",
+    "baseHp": 150,
+    "baseAtk": 140,
+    "baseDef": 140,
+    "baseSpd": 70,
+    "codeBall": "SIT-01"
+  },
+  {
+    "code": "AUD-08",
+    "name": "Kebir",
+    "baseHp": 150,
+    "baseAtk": 100,
+    "baseDef": 100,
+    "baseSpd": 150,
+    "codeBall": "SIT-02"
+  },
+  {
+    "code": "AUD-09",
+    "name": "Pariotti",
+    "baseHp": 100,
+    "baseAtk": 100,
+    "baseDef": 150,
+    "baseSpd": 150,
+    "codeBall": "SIT-03"
+  },
+  {
+    "code": "AUD-10",
+    "name": "Lespeed",
+    "baseHp": 50,
+    "baseAtk": 50,
+    "baseDef": 50,
+    "baseSpd": 350,
+    "codeBall": "SIT-02"
+  },
+  {
+    "code": "AUD-11",
+    "name": "Messire",
+    "baseHp": 100,
+    "baseAtk": 100,
+    "baseDef": 100,
+    "baseSpd": 100,
+    "codeBall": "SIT-03"
+  },
+  {
+    "code": "AUD-12",
+    "name": "Delegay",
+    "baseHp": 120,
+    "baseAtk": 140,
+    "baseDef": 120,
+    "baseSpd": 120,
+    "codeBall": "SIT-01"
   }
 ]

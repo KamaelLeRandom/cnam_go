@@ -25,11 +25,16 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.Objects;
+
 public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
-    EditText username;
-    EditText password;
-    Button loginButton;
+
+    private EditText username;
+
+    private EditText password;
+
+    private Button loginButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,52 +47,54 @@ public class LoginActivity extends AppCompatActivity {
         loginButton = findViewById(R.id.loginbutton);
         mAuth = FirebaseAuth.getInstance();
 
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String loginInput = username.getText().toString().trim();
-                String passwordInput = password.getText().toString().trim();
+        loginButton.setOnClickListener(view -> {
+            String loginInput = username.getText().toString().trim();
+            String passwordInput = password.getText().toString().trim();
 
-                if (loginInput.isEmpty() || passwordInput.isEmpty()) {
-                    Toast.makeText(LoginActivity.this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-                db.collection("User")
-                        .whereEqualTo("Login", loginInput)
-                        .whereEqualTo("Password", passwordInput)
-                        .get()
-                        .addOnCompleteListener(task -> {
-                            if (task.isSuccessful()) {
-                                QuerySnapshot result = task.getResult();
-                                if (!result.isEmpty()) {
-                                    QueryDocumentSnapshot userDoc = (QueryDocumentSnapshot) result.getDocuments().get(0);
-
-                                    String userId = userDoc.getId();
-                                    String login = userDoc.getString("Login");
-                                    Long money = userDoc.getLong("Money");
-
-                                    SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
-                                    SharedPreferences.Editor editor = prefs.edit();
-                                    editor.putBoolean("isLogged", true);
-                                    editor.putString("userId", userId);
-                                    editor.putString("login", login);
-                                    editor.putLong("money", money != null ? money : 0);
-                                    editor.apply();
-                                    Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
-                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                    startActivity(intent);
-                                    finish();
-                                } else {
-                                    Toast.makeText(LoginActivity.this, "Login Failed!", Toast.LENGTH_SHORT).show();
-                                }
-                            } else {
-                                Toast.makeText(LoginActivity.this, "Erreur: " + task.getException(), Toast.LENGTH_SHORT).show();
-                            }
-                        });
+            if (loginInput.isEmpty() || passwordInput.isEmpty()) {
+                Toast.makeText(LoginActivity.this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+            db.collection("User")
+                    .whereEqualTo("Login", loginInput)
+                    .whereEqualTo("Password", passwordInput)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            QuerySnapshot result = task.getResult();
+                            if (!result.isEmpty()) {
+                                QueryDocumentSnapshot userDoc = (QueryDocumentSnapshot) result.getDocuments().get(0);
+
+                                String userId = userDoc.getId();
+                                String login = userDoc.getString("Login");
+                                Long money = userDoc.getLong("Money");
+                                String dailyDate = userDoc.getString("DailyDate");
+                                if (dailyDate == null) {
+                                    dailyDate = "";
+                                }
+
+                                SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
+                                SharedPreferences.Editor editor = prefs.edit();
+                                editor.putString("dailyDate", dailyDate);
+                                editor.putBoolean("isLogged", true);
+                                editor.putString("userId", userId);
+                                editor.putString("login", login);
+                                editor.putLong("money", money != null ? money : 0);
+                                editor.apply();
+                                Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
+                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                startActivity(intent);
+                                finish();
+                            } else {
+                                Toast.makeText(LoginActivity.this, "Login Failed!", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(LoginActivity.this, "Erreur: " + task.getException(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
         });
 
     }

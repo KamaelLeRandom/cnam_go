@@ -2,17 +2,17 @@
   {
     "code": "SIT-01",
     "name": "Monstahball",
-    "description": ""
+    "description": "Une canette énergisante ultra sucrée. Rien de plus efficace qu’une dose de sucre pour convaincre un auditeur fatigué. Même puissance que les autres, mais avec un goût explosif."
   },
   {
     "code": "SIT-02",
     "name": "RedBall",
-    "description": ""
+    "description": "Une boisson rouge vif au goût fruité. Classique, fiable, toujours prête à rafraîchir un auditeur récalcitrant. Aucun bonus caché, juste du style."
   },
   {
     "code": "SIT-03",
     "name": "PerrierBall",
-    "description": ""
+    "description": "Une eau pétillante élégante. Les bulles chatouillent l’ego des auditeurs les plus distingués. Même efficacité, mais avec classe."
   },
   {
     "code": "SIT-04",

@@ -36,6 +36,7 @@ public class AuditeurMap {
             int index = random.nextInt(array.length());
             JSONObject obj = array.getJSONObject(index);
 
+            String codeBall = obj.getString("codeBall");
             String code = obj.getString("code");
             String name = obj.getString("name");
             int baseHp = obj.getInt("baseHp");
@@ -47,7 +48,8 @@ public class AuditeurMap {
                     randomStat(baseHp),
                     randomStat(baseAtk),
                     randomStat(baseDef),
-                    randomStat(baseSpd)
+                    randomStat(baseSpd),
+                    codeBall
             );
         } catch (Exception e) {
             e.printStackTrace();
