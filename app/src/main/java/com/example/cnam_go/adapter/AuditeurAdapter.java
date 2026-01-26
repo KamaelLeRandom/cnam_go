@@ -1,5 +1,6 @@
 package com.example.cnam_go.adapter;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -92,6 +93,29 @@ public class AuditeurAdapter extends RecyclerView.Adapter<AuditeurAdapter.ViewHo
 
             builder.show();
         });
+
+        holder.btnDelete.setOnClickListener(v -> {
+            // ✅ Vérification : le context est-il encore une Activity valide ?
+            if (!(context instanceof Activity)) return;
+            Activity activity = (Activity) context;
+            if (activity.isFinishing() || activity.isDestroyed()) {
+                return; // Ne pas afficher la dialog si l'activité est en train de se fermer
+            }
+
+            new AlertDialog.Builder(activity)
+                    .setTitle("Confirmer la suppression")
+                    .setMessage("Voulez-vous vraiment supprimer cet auditeur ? Cette action est irréversible.")
+                    .setPositiveButton("Oui", (dialog, which) -> {
+                        deleteAuditeurFromDB(a.Id);
+
+                        auditeurs.remove(position);
+
+                        notifyItemRemoved(position);
+                        notifyItemRangeChanged(position, auditeurs.size());
+                    })
+                    .setNegativeButton("Non", null)
+                    .show(); // ← maintenant sûr
+        });
     }
 
     @Override
@@ -116,6 +140,24 @@ public class AuditeurAdapter extends RecyclerView.Adapter<AuditeurAdapter.ViewHo
                 });
     }
 
+    private void deleteAuditeurFromDB(String id) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("Listener")
+                .document(id)
+                .delete()
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("Firebase", "Auditeur supprimé avec succès !");
+
+                    ((Activity) context).runOnUiThread(() ->
+                            Toast.makeText(context, "Auditeur relaché", Toast.LENGTH_SHORT).show()
+                    );
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Firebase", "Erreur lors de la suppression : " + e.getMessage());
+                });
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView textViewName;
 
@@ -125,7 +167,7 @@ public class AuditeurAdapter extends RecyclerView.Adapter<AuditeurAdapter.ViewHo
 
         TextView textAtk, textDef, textHp, textSpd;
 
-        ImageButton btnRename;
+        ImageButton btnRename, btnDelete;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -137,6 +179,7 @@ public class AuditeurAdapter extends RecyclerView.Adapter<AuditeurAdapter.ViewHo
             textHp  = itemView.findViewById(R.id.textHp);
             textSpd = itemView.findViewById(R.id.textSpd);
             btnRename = itemView.findViewById(R.id.btnRename);
+            btnDelete = itemView.findViewById(R.id.btnDelete);
         }
     }
 }

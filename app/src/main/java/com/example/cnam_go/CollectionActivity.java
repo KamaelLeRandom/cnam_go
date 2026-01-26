@@ -29,7 +29,7 @@ public class CollectionActivity extends AppCompatActivity {
         setContentView(R.layout.activity_collection);
 
         auditeurList = new ArrayList<>();
-        adapter = new AuditeurAdapter(getApplicationContext(), auditeurList);
+        adapter = new AuditeurAdapter(this, auditeurList);
         recyclerView = findViewById(R.id.recyclerViewCaptured);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);

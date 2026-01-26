@@ -36,6 +36,9 @@
         <activity
             android:name=".CollectionActivity"
             android:exported="false" />
+        <activity
+            android:name=".RegisterActivity"
+            android:exported="false" />
     </application>
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>

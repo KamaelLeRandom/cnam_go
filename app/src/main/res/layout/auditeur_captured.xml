@@ -50,6 +50,17 @@
                     android:scaleType="centerInside"
                     android:contentDescription="Renommer"
                     app:tint="@android:color/holo_blue_dark" />
+
+                <ImageButton
+                    android:id="@+id/btnDelete"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_marginStart="6dp"
+                    android:background="@android:color/transparent"
+                    android:src="@android:drawable/ic_delete"
+                    android:scaleType="centerInside"
+                    android:contentDescription="Supprimer"
+                    app:tint="@android:color/holo_red_dark" />
             </LinearLayout>
 
             <TextView
